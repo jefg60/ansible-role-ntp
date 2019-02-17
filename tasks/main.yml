@@ -2,8 +2,13 @@
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
+- name: Wait for apt dependency lock
+  shell: while fuser /var/lib/dpkg/lock >/dev/null ; do sleep $[ ( $RANDOM % 10 )  + 1 ]s; done
+  args:
+    executable: /bin/bash
+
 - name: Ensure NTP-related packages are installed.
-  package:
+  apt:
     name: ntp
     state: present
 
