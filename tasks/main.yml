@@ -11,6 +11,10 @@
   apt:
     name: ntp
     state: present
+  register: task_result
+  until: task_result.failed is false
+  retries: 10
+  delay: 3
 
 - name: Ensure tzdata package is installed (Linux).
   package:
