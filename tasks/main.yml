@@ -6,13 +6,14 @@
   shell: while fuser /var/lib/dpkg/lock >/dev/null ; do sleep $[ ( $RANDOM % 10 )  + 1 ]s; done
   args:
     executable: /bin/bash
+  when: ansible_os_family == "Debian"
 
 - name: Ensure NTP-related packages are installed.
-  apt:
+  package:
     name: ntp
     state: present
-  register: task_result
-  until: task_result.failed is false
+  register: package_install_ntp
+  until: package_install_ntp is succeeded
   retries: 10
   delay: 3
 
@@ -21,6 +22,10 @@
     name: "{{ ntp_tzdata_package }}"
     state: present
   when: ansible_system == "Linux"
+  register: package_install_ntp_tzdata
+  until: package_install_ntp_tzdata is succeeded
+  retries: 10
+  delay: 3
 
 - include_tasks: clock-rhel-6.yml
   when: ansible_os_family == 'RedHat' and ansible_distribution_version.split('.')[0] == '6'
